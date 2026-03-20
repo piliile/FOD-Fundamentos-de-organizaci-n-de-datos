@@ -1,0 +1,29 @@
+{3. Realizar un programa que presente un menú con opciones para:
+a. Crear un archivo binario de registros no ordenados de empleados y
+completarlo con datos ingresados desde teclado.
+De cada empleado se registra:
+número de empleado, apellido, nombre, edad y DNI.
+Algunos empleados pueden ingresan el DNI con valor 0, lo
+que significa que al momento de la carga puede no tenerlo.
+La carga finaliza cuando se ingresa el String ‘fin’ como apellido.}
+program ejercicio3aPractica1;
+type
+    empleado = record
+             numero: integer;
+             apellido: string;
+             nombre: string;
+             edad: integer;
+             dni: integer;
+    end;
+    archivo_empleados = file of empleado;
+    procedure leer(var e: empleado);
+    begin
+         readln(e.numero);
+         readln(e.apellido);
+         readln(e.nombre);
+         readln(e.edad);
+         readln(e.dni);
+    end;
+begin
+
+end.
