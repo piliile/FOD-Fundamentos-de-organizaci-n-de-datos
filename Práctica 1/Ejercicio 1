@@ -4,23 +4,24 @@ cuando se ingresa el número 30000, que no debe incorporarse al archivo. El nomb
 debe ser proporcionado por el usuario desde el teclado.}
 
 program ejercicio1;
-corte = 30000;
+const
+	corte = 30000;
 type
-	archivo_numeros_enteros = file of integer;
+	archivo_numeros_enteros = file of integer; // DEFINO UN TIPO DE ARCHIVO BINARIO (UN ARCHIVO QUE GUARDA ENTEROS, DE LONGITUD FIJA)
 var
-	numeros_enteros: archivo_numeros_enteros;
+	numeros_enteros: archivo_numeros_enteros; // NOMBRE LÓGICO DEL ARCHIVO
 	nombre_fisico: string;
 	numero: integer;
 begin
-	writeln("Ingrese el nombre físico del archivo de carga: ");
-	readln(nombre_fisico)
-	assing(numeros_enteros, nombre_fisico);// AL NOMBRE LOGICO LE ASIGNO EL NOMBRE FISICO.
+	writeln('Ingrese el nombre físico del archivo de carga: ');
+	readln(nombre_fisico);
+	assign(numeros_enteros, nombre_fisico);// AL NOMBRE LOGICO LE ASIGNO EL NOMBRE FISICO.
 	rewrite(numeros_enteros); // CREO EL ARCHIVO, ADEMAS DE CREARLO SE ABRE. 
-	writeln("Ingrese un número para añadirlo al archivo: ");
+	writeln('Ingrese un número para añadirlo al archivo: ');
 	readln(numero);
 	while (numero <> corte) do begin 
-		write(numeros_enteros, numero);
-		write("Ingrese otro número: ");
+		writeln(numeros_enteros, numero); // GUARDO EL NÚMERO EN EL ARCHIVO.
+		writeln('Ingrese otro número: ');
 		readln(numero);
 	end;
 	close(numeros_enteros); // SIEMPRE CIERRO EL ARCHIVO QUE ABRO.
