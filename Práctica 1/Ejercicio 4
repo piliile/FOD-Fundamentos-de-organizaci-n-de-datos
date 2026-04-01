@@ -1,0 +1,183 @@
+{4. Agregar al menú del programa del ejercicio 3, opciones para:
+a. Añadir uno o más empleados al final del archivo con sus datos ingresados por teclado.
+Tener en cuenta que no se debe agregar al archivo un empleado con un número de
+empleado ya registrado (control de unicidad).
+b. Modificar la edad de un empleado dado.
+c. Exportar el contenido del archivo a un archivo de texto llamado “todos_empleados.txt”.
+d. Exportar a un archivo de texto llamado “faltaDNIEmpleado.txt”, los empleados que no
+tengan cargado el DNI (DNI en 0).
+NOTA: Las búsquedas deben realizarse por número de empleado.}
+program ejercicio4;
+const
+	corte = 'fin';
+type
+    empleado = record
+             numero: integer;
+             apellido: string;
+             nombre: string;
+             edad: integer;
+             dni: integer;
+    end;
+    archivo_empleados = file of empleado;
+    
+procedure leer(var e: empleado);
+begin
+	writeln('Ingrese el apellido del empleado: ');
+	readln(e.apellido);
+	if (e.apellido  <> corte) then begin
+    	writeln('Ingrese el numero del empleado: ');
+		readln(e.numero);
+		writeln('Ingrese el nombre del empleado: ');
+		readln(e.nombre);
+		writeln('Ingrese la edad del empleado: ');
+		readln(e.edad);
+		writeln('Ingrese el dni del empleado: ');
+		readln(e.dni);
+	end;
+end;
+procedure cargar(var arc: archivo_empleados);
+var
+	e: empleado;
+begin
+	leer(e);
+	while (e.apellido <> corte) do begin
+		write(arc, e);
+		leer(e);
+	end;	
+	close(arc);
+end;
+procedure imprimirEmpleado(e: empleado);
+begin
+    writeln('Número: ', e.numero, '. Apellido: ', e.apellido, '. Nombre: ',
+    e.nombre, '. Edad: ', e.edad, '. DNI: ', e.dni, '.');
+end;
+procedure empleadoDeterminado(arc: archivo_empleados);
+var 
+    nombreOApellido: string[15];
+    e: empleado;
+    
+    function cumple(nom, ape, nomOApe: string): boolean;
+    begin
+        cumple := ((nom = nomOApe) or (ape = nomOApe));
+    end;
+begin
+    reset(arc);
+    writeln('Ingrese nombre o apellido de un empleado: ');
+    readln(nombreOApellido);
+    writeln('Los empleados que tienen un nombre/apellido igual a ', nombreOApellido, ' son: ');
+    while (not EOF(arc)) do begin 
+        read(arc, e);
+        if (cumple(e.nombre, e.apellido, nombreOApellido)) then
+            imprimirEmpleado(e);
+    end;
+    close(arc);
+end;
+
+procedure listadoEmpleados(arc: archivo_empleados);
+var 
+    e: empleado;
+begin
+    reset(arc);
+    writeln('Listado de empleados: ');
+    while(not EOF(arc)) do begin 
+        read(arc, e);
+        imprimirEmpleado(e);
+    end;
+    close(arc);
+end;
+
+procedure empleadosMayores70(arc: archivo_empleados);
+var 
+    e: empleado;
+    
+    function cumpleEdad(edad: integer): boolean;
+    begin
+        cumpleEdad := (edad > 70);
+    end;
+begin
+    reset(arc);
+    writeln('Los empleados próximos a jubilarse (+70) son: ');
+    while(not EOF(arc)) do begin
+        read(arc, e);
+        if (cumpleEdad(e.edad)) then 
+            imprimirEmpleado(e);
+    end;
+    close(arc);
+end;
+
+procedure menu(var arc: archivo_empleados);
+var 
+    opcion: integer;
+begin
+    writeln('Las opciones a elegir son las siguientes: ');
+    writeln('Opción 1: listar en pantalla los datos de empleados que tengan un nombre o apellido determinado');
+    writeln('Opción 2: listar en pantalla los empleados de a uno por línea');
+    writeln('Opción 3: listar en pantalla los empleados mayores a 70 años, próximos a jubilarse');
+    writeln('Opcion 4: agregar uno o mas empleados al final del archivo con sus datos ingresados');
+    writeln('Opcion 5: modificar la edad de un empleado dado');
+    writeln('Opcion 6: exportar el contenido del archivo a un archivo de texto llamado todos_empleados.txt');
+    writeln('Opcion 7: exportar a un archivo de texto llamado: faltaDNIEmpleado.txt, los empleados que no tengan cargado el DNI');
+    writeln('Opcion 8: salir del menú.');
+    readln(opcion);
+    while (opcion <> 8) do begin 
+        case opcion of
+            1: empleadoDeterminado(arc);
+            2: listadoEmpleados(arc);
+            3: empleadosMayores70(arc);
+            4: agregarEmpleado(arc);
+	        5: modificarEdad(arc);
+	        6: exportarContenido(arc);
+	        7: exportarTextoDni(arc);
+        else    
+            writeln('Opción inválida.');
+        end;
+        writeln('Vuelva a ingresar una opción: ');
+        readln(opcion);
+    end;
+end;
+
+procedure agregarEmpleado(var arc: archivo_empleados);
+var
+    e: empleado;
+    
+    function existeEmpleado(arc: archivo_empleados; num: integer): boolean;
+    var
+        e: empleado;
+        repetido: boolean;
+    begin
+        seek(arc, 0); // preguntar. 
+        repetido := false;
+        while ((not EOF(arc)) and (not repetido)) do begin 
+            read(arc, e);
+            if (e.numero = num) then 
+                repetido := true;
+        end;
+        existeEmpleado := repetido;
+    end;
+begin
+    leer(e);
+    reset(arc);
+    while (e.apellido <> 'fin') do begin 
+        if (not existeEmpleado(arc, e.numero)) then begin 
+            seek(arc, filesize(arc));
+            write(arc, e);
+        end
+        else    
+            writeln('El número ya existe.');
+        leer(e);
+    end;
+    close(arc);
+end;
+
+var
+	archivo: archivo_empleados;
+	nombre_fisico: string;
+	e: empleado;
+begin
+	writeln('Ingrese el nombre del archivo de carga: ');
+	readln(nombre_fisico);
+	assign(archivo, nombre_fisico);
+	rewrite(archivo);
+	cargar(archivo);
+	menu(archivo);
+end.
