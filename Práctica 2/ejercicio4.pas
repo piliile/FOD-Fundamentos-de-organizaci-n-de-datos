@@ -51,7 +51,7 @@ begin
 	if (not EOF (arcMae)) then 
 		read(arcMae, regM);
 	else
-		regM.codigo = valorAlto;
+		regM.codigo := valorAlto;
 end;
 
 procedure actualizarMaestro(var arcMae: archivoMaestro; var vecArc: vectorArchivos);
