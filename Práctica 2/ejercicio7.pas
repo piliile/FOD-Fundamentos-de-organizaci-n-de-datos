@@ -81,44 +81,58 @@ begin
 		f.codigoAlumno := valorAlto;
 end;
 
-procedure minimo(var arcCursadas: archivoCursadas; var arcFinales: archivoFinales; var c: cursadas; var f: finales); //var min: ?)
+procedure abrirArchivos(var arcCursadas: archivoCursadas; var arcFinales: archivoFinales; var arcMae: archivoMaestro);
+begin 
+	reset(arcCursadas); 
+	reset(arcFinales); 
+	reset(arcMae);
+end;
+
+procedure cerrarArchivos(var arcCursadas: archivoCursadas; var arcFinales: archivoFinales; var arcMae: archivoMaestro);
 begin
-	if (c.codigoAlumno < f.codigoAlumno) then begin 
-		//min := ..
-		leerCursadas(arcCursadas, c);
-	end
-	else begin 
-		//min := ..
-		leerFinales(arcFinales, f);
-	end;
+	close(arcCursadas); 
+	close(arcFinales); 
+	close(arcMae);
 end;
 
 procedure actualizarMaestro(var arcCursadas: archivoCursadas; var arcFinales: archivoFinales; var arcMae: archivoMaestro);
 var
 	c: cursadas;
 	f: finales;
-	// min: ...?
+	codigoAlumnoActual: integer;
+	regMae: registroMaestro;
 
 begin	
-	reset(arcCursadas); reset(arcFinales); reset(arcMae);
+	abrirArchivos(arcCursadas, arcFinales, arcMae);
 	leerCursadas(arcCursadas, c);
 	leerFinales(arcFinales, f);
-	minimo(arcCursadas, arcFinales, c, f, min);
+	read(arcMae, regMae);
 
-	
-
-
-
-	
-	close(arcCursadas); close(arcFinales); close(arcMae);
+	while (c.codigoAlumno <> valorAlto) or (f.codigoAlumno <> valorAlto) do begin
+		if (c.codigoAlumno < f.codigoAlumno) then 	
+			codigoAlumnoActual := c.codigoAlumno
+		else
+			codigoAlumnoActual := f.codigoAlumno;
+		
+		while (regMae.codigoAlumno <> codigoAlumnoActual) do 
+			read(arcMae, regMae);
+			
+		while (codigoAlumnoActual = c.codigoAlumno) do begin
+			if (c.resultado) then 
+				regMae.cursadasAprobadas := regMae.cursadasAprobadas + 1;
+			leerCursadas(arcCursadas, c);
+		end;
+		
+		while (codigoAlumnoActual = f.codigoAlumno) do begin 
+			if (f.nota >= 4) then  
+				regMae.materiasFinalesAprobados := regMae.materiasFinalesAprobados + 1;
+			leerFinales(arcFinales, f);
+		end;
+		seek(arcMae, filepos(arcMae) - 1);
+		write(arcMae, regMae);
+	end;
+	cerrarArchivos(arcCursadas, arcFinales, arcMae);
 end;
-
-
-
-
-
-
-
 
 // programa principal
 var
