@@ -43,13 +43,22 @@ begin
 		regDet.codigoProvincia := valorAlto;
 end;
 
+procedure leerMaestro(var arcMae: archivoMaestro; var regMae: registroMaestro);
+begin
+    if (not EOF(arcMae)) then
+        read(arcMae, regMae)
+    else
+        regMae.codigoProvincia := valorAlto;
+end;
+
 procedure minimo(var vecArc: vectorArchivos; var vecReg: vectorRegistros; var min: registroDetalle);
 var
 	i, pos: rango;
 begin
 	min.codigoProvincia := valorAlto;
 	for i := 1 to dimF do begin
-		if (vecReg[i].codigoProvincia < min.codigoProvincia) then begin
+		if ((vecReg[i].codigoProvincia < min.codigoProvincia) or (vecReg[i].codigoProvincia = min.codigoProvincia and
+            vecReg[i].codigoLocalidad < min.codigoLocalidad)) then begin
 			min := vecReg[i];
 			pos := i;
 		end;
