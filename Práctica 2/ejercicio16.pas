@@ -91,15 +91,42 @@ var
     vecReg: vectorRegistros;
     minDet: registroDetalle;
     regMae: registroMaestro;
+    total, codigoMax, codigoMin, fechaMax, fechaMin, fechaActual, codigoSemActual, max, min: integer;
 begin
     informacionArchivos(vecArc, vecReg, arcMae, regMae);
     minimo(vecArc, vecReg, minDet);
-
-    while (minDet.fecha <> valorAlto) do begin // ayuda acá
-
-       
+	max := -1; min := valorAlto;
+	read(arcMae, regMae);
+    while (minDet.fecha <> valorAlto) do begin // ¿?
+		while ((regMae.fecha < minDet.fecha) or (regMae.fecha = minDet.fecha and regMae.codigoSemanario < minDet.codigoSemanario)) do 
+			read(arcMae, regMae);
+		
+		total := 0;
+		fechaActual := minDet.fecha;
+		while (fechaActual = minDet.fecha) do begin 
+			codigoSemActual := minDet.codigoSemanario;
+			while (fechaActual = minDet.fecha and codigoSemActual = minDet.codigoSemanario) do begin 
+					total := total + minDet.ejemplaresVendidos;
+					regMae.ejemplares := regMae.ejemplares -  minDet.ejemplaresVendidos;
+					regMae.ejemplaresVendidos := regMae.ejemplaresVendidos + minDet.ejemplaresVendidos; 
+					minimo(vecArc, vecReg, minDet);
+			end;
+			if (total > max) then begin
+				max := total;
+				fechaMax := fechaActual;
+				codigoMax := codigoSemActual;
+			end;
+			if (total < min) then begin 	
+				min := total;
+				fechaMin := fechaActual;
+				codigoMin := codigoSemActual;
+			end;
+			seek(arcMae, filepos(arcMae) - 1);
+			write(arcMae, regMae);
+		end;
     end;
-
+	writeln('Semanario máximo: Fecha = ', fechaMax, '. Código = ', codigoMax);
+    writeln('Semanario mínimo: Fecha = ', fechaMin, '. Código = ', codigoMin);
     cerrarArchivos(vecArc, arcMae);
 end;
 	
@@ -111,4 +138,3 @@ var
 begin
 	actualizarMaestro(vecArc, arcMae);
 end.
-	
